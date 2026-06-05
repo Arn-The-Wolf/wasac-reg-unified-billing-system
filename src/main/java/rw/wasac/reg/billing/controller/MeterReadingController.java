@@ -30,14 +30,14 @@ public class MeterReadingController {
     private final MeterReadingService meterReadingService;
 
     @PostMapping
-    @PreAuthorize("hasRole('OPERATOR')")
+    @PreAuthorize("hasAnyRole('OPERATOR', 'INSPECTOR')")
     public ResponseEntity<ApiResponse<MeterReadingResponse>> create(@Valid @RequestBody MeterReadingRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Reading recorded", meterReadingService.create(request)));
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'OPERATOR', 'FINANCE')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'OPERATOR', 'INSPECTOR', 'FINANCE')")
     public ResponseEntity<ApiResponse<List<MeterReadingResponse>>> getAll() {
         return ResponseEntity.ok(ApiResponse.success("Readings retrieved", meterReadingService.getAll()));
     }
@@ -55,14 +55,14 @@ public class MeterReadingController {
     }
 
     @GetMapping("/meter/{meterId}/suggested-previous")
-    @PreAuthorize("hasAnyRole('ADMIN', 'OPERATOR')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'OPERATOR', 'INSPECTOR')")
     public ResponseEntity<ApiResponse<java.math.BigDecimal>> getSuggestedPrevious(@PathVariable Long meterId) {
         return ResponseEntity.ok(ApiResponse.success(
                 "Suggested previous reading retrieved", meterReadingService.getSuggestedPreviousReading(meterId)));
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('OPERATOR')")
+    @PreAuthorize("hasAnyRole('OPERATOR', 'INSPECTOR')")
     public ResponseEntity<ApiResponse<Void>> voidReading(@PathVariable Long id) {
         meterReadingService.voidReading(id);
         return ResponseEntity.ok(ApiResponse.success("Meter reading voided successfully"));

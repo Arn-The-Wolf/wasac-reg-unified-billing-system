@@ -1,14 +1,24 @@
 package rw.wasac.reg.billing.service;
 
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
 import rw.wasac.reg.billing.dto.request.LoginRequest;
 import rw.wasac.reg.billing.dto.request.OtpVerifyRequest;
 import rw.wasac.reg.billing.dto.request.SignupRequest;
@@ -24,16 +34,6 @@ import rw.wasac.reg.billing.exception.DuplicateResourceException;
 import rw.wasac.reg.billing.repository.UserRepository;
 import rw.wasac.reg.billing.security.JwtTokenProvider;
 import rw.wasac.reg.billing.serviceImpl.AuthServiceImpl;
-
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class AuthServiceTest {

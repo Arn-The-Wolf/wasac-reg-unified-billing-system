@@ -30,7 +30,7 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/signup")
-    @Operation(summary = "Signup", description = "Register a new user and send email OTP for activation")
+    @Operation(summary = "Signup", description = "Customer self-registration only (ROLE_CUSTOMER). Staff accounts are created by an administrator.")
     public ResponseEntity<ApiResponse<OtpPendingResponse>> signup(@Valid @RequestBody SignupRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(authService.signup(request));
     }

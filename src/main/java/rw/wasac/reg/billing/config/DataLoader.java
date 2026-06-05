@@ -103,6 +103,16 @@ public class DataLoader implements CommandLineRunner {
                 .build());
 
         userRepository.save(User.builder()
+                .fullName("Field Inspector")
+                .email("inspector@wasac.rw")
+                .countryCode("+250")
+                .phoneNumber("0781000005")
+                .password(passwordEncoder.encode("Inspector@123"))
+                .status(UserStatus.ACTIVE)
+                .role(Role.ROLE_INSPECTOR)
+                .build());
+
+        userRepository.save(User.builder()
                 .fullName("Finance Officer")
                 .email("finance@wasac.rw")
                 .countryCode("+250")
@@ -123,7 +133,8 @@ public class DataLoader implements CommandLineRunner {
                 .customer(customer)
                 .build());
 
-        log.info("Default credentials: ruyangearnold@gmail.com/Admin@123, operator@wasac.rw/Operator@123, finance@wasac.rw/Finance@123, customer@wasac.rw/Customer@123");
+        log.info("Default credentials: ruyangearnold@gmail.com/Admin@123, operator@wasac.rw/Operator@123, "
+                + "inspector@wasac.rw/Inspector@123, finance@wasac.rw/Finance@123, customer@wasac.rw/Customer@123");
     }
 
     private void loadTariffConfig() {
