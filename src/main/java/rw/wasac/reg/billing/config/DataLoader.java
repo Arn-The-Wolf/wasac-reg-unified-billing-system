@@ -1,3 +1,8 @@
+/**
+ * Spring configuration component: DataLoader.
+ *
+ * @author WASAC/REG Billing System
+ */
 package rw.wasac.reg.billing.config;
 
 import lombok.RequiredArgsConstructor;
@@ -79,7 +84,7 @@ public class DataLoader implements CommandLineRunner {
 
         userRepository.save(User.builder()
                 .fullName("System Admin")
-                .email("admin@wasac.rw")
+                .email("ruyangearnold@gmail.com")
                 .countryCode("+250")
                 .phoneNumber("0781000001")
                 .password(passwordEncoder.encode("Admin@123"))
@@ -118,7 +123,7 @@ public class DataLoader implements CommandLineRunner {
                 .customer(customer)
                 .build());
 
-        log.info("Default credentials: admin@wasac.rw/Admin@123, operator@wasac.rw/Operator@123, finance@wasac.rw/Finance@123, customer@wasac.rw/Customer@123");
+        log.info("Default credentials: ruyangearnold@gmail.com/Admin@123, operator@wasac.rw/Operator@123, finance@wasac.rw/Finance@123, customer@wasac.rw/Customer@123");
     }
 
     private void loadTariffConfig() {

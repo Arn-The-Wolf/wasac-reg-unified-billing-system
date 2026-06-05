@@ -1,3 +1,8 @@
+/**
+ * Spring configuration component: SecurityConfig.
+ *
+ * @author WASAC/REG Billing System
+ */
 package rw.wasac.reg.billing.config;
 
 import lombok.RequiredArgsConstructor;

@@ -1,3 +1,8 @@
+/**
+ * Security component: JwtAuthenticationFilter for JWT authentication.
+ *
+ * @author WASAC/REG Billing System
+ */
 package rw.wasac.reg.billing.security;
 
 import jakarta.servlet.FilterChain;

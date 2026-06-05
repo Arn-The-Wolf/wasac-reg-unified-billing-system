@@ -1,3 +1,8 @@
+/**
+ * Request DTO for OtpVerifyRequest with validation constraints.
+ *
+ * @author WASAC/REG Billing System
+ */
 package rw.wasac.reg.billing.dto.request;
 
 import jakarta.validation.constraints.Email;
@@ -5,16 +10,17 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import rw.wasac.reg.billing.constant.AppConstants;
 
 @Data
 public class OtpVerifyRequest {
 
-    @NotBlank
-    @Email
+    @NotBlank(message = AppConstants.EMAIL_REQUIRED_MESSAGE)
+    @Email(message = AppConstants.EMAIL_MESSAGE)
     private String email;
 
-    @NotBlank
-    @Size(min = 6, max = 6, message = "OTP must be 6 digits")
-    @Pattern(regexp = "\\d{6}", message = "OTP must contain only digits")
+    @NotBlank(message = AppConstants.OTP_CODE_REQUIRED_MESSAGE)
+    @Size(min = 6, max = 6, message = AppConstants.OTP_CODE_MESSAGE)
+    @Pattern(regexp = AppConstants.OTP_CODE_PATTERN, message = AppConstants.OTP_CODE_MESSAGE)
     private String code;
 }

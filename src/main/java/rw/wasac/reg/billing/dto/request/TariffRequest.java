@@ -1,3 +1,8 @@
+/**
+ * Request DTO for TariffRequest with validation constraints.
+ *
+ * @author WASAC/REG Billing System
+ */
 package rw.wasac.reg.billing.dto.request;
 
 import jakarta.validation.Valid;
@@ -27,8 +32,11 @@ public class TariffRequest {
     @NotNull
     private MeterType meterType;
 
-    @NotNull
+    @NotNull(message = "Effective from date is required")
     private LocalDate effectiveFrom;
+
+    /** Optional end date; when set, tariff does not apply to billing periods after this date. */
+    private LocalDate effectiveTo;
 
     @DecimalMin(value = "0.0", inclusive = true)
     private BigDecimal flatRate;

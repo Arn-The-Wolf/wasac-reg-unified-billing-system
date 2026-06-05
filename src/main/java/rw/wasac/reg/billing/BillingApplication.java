@@ -1,3 +1,8 @@
+/**
+ * Spring Boot application entry point for the WASAC/REG billing system.
+ *
+ * @author WASAC/REG Billing System
+ */
 package rw.wasac.reg.billing;
 
 import org.springframework.boot.SpringApplication;

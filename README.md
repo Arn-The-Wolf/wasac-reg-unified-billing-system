@@ -50,7 +50,7 @@ http://localhost:8080/swagger-ui.html
 
 | Role     | Email              | Password      |
 |----------|--------------------|---------------|
-| ADMIN    | admin@wasac.rw     | Admin@123     |
+| ADMIN    | ruyangearnold@gmail.com | Admin@123     |
 | OPERATOR | operator@wasac.rw  | Operator@123  |
 | FINANCE  | finance@wasac.rw   | Finance@123   |
 | CUSTOMER | customer@wasac.rw  | Customer@123  |

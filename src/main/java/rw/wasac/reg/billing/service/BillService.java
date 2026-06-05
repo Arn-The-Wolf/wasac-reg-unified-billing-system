@@ -1,3 +1,8 @@
+/**
+ * Service contract defining BillService operations.
+ *
+ * @author WASAC/REG Billing System
+ */
 package rw.wasac.reg.billing.service;
 
 import rw.wasac.reg.billing.dto.request.BillGenerateRequest;

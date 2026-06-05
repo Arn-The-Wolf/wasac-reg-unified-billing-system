@@ -1,3 +1,8 @@
+/**
+ * Request DTO for FixedChargeRequest with validation constraints.
+ *
+ * @author WASAC/REG Billing System
+ */
 package rw.wasac.reg.billing.dto.request;
 
 import jakarta.validation.constraints.DecimalMin;

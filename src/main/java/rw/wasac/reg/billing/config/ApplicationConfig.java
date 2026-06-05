@@ -1,3 +1,8 @@
+/**
+ * Spring configuration component: ApplicationConfig.
+ *
+ * @author WASAC/REG Billing System
+ */
 package rw.wasac.reg.billing.config;
 
 import org.springframework.context.annotation.Configuration;

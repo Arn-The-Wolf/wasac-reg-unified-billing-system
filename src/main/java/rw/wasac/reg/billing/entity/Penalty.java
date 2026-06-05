@@ -1,3 +1,8 @@
+/**
+ * JPA entity representing the Penalty domain model.
+ *
+ * @author WASAC/REG Billing System
+ */
 package rw.wasac.reg.billing.entity;
 
 import jakarta.persistence.*;

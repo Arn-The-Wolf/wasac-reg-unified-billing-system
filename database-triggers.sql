@@ -1,6 +1,7 @@
 -- ================================================================
 -- Task 6: Database Routines - Triggers for Bill Notifications
 -- PostgreSQL - Run after application creates tables
+-- Java layer sends HTML emails; triggers persist in-app notifications.
 -- ================================================================
 
 \c wasac_billing_db;
@@ -37,14 +38,14 @@ BEGIN
         WHEN 10 THEN 'October' WHEN 11 THEN 'November' WHEN 12 THEN 'December'
     END;
 
-    v_month_year := LPAD(v_month::TEXT, 2, '0') || '-' || v_year::TEXT;
+    v_month_year := v_month_name || '/' || v_year;
 
     v_message_text := 'Dear ' || v_customer_name ||
-        ', Your ' || v_month_name || '/' || v_year ||
+        ', Your ' || v_month_year ||
         ' utility bill of ' || TO_CHAR(v_total_amount, 'FM999999999.00') ||
         ' FRW has been successfully processed.';
 
-    INSERT INTO notifications (customer_id, message, month, year, month_year, sent_at)
+    INSERT INTO customer_notifications (customer_id, message, billing_month, billing_year, month_year, sent_at)
     VALUES (v_customer_id, v_message_text, v_month, v_year, v_month_year, CURRENT_TIMESTAMP);
 END;
 $$ LANGUAGE plpgsql;
@@ -74,14 +75,14 @@ BEGIN
         WHEN 10 THEN 'October' WHEN 11 THEN 'November' WHEN 12 THEN 'December'
     END;
 
-    v_month_year := LPAD(v_month::TEXT, 2, '0') || '-' || v_year::TEXT;
+    v_month_year := v_month_name || '/' || v_year;
 
     v_message_text := 'Dear ' || v_customer_name ||
-        ', Your ' || v_month_name || '/' || v_year ||
+        ', Your ' || v_month_year ||
         ' utility bill of ' || TO_CHAR(v_total_amount, 'FM999999999.00') ||
-        ' FRW has been fully paid. Thank you.';
+        ' FRW has been successfully processed.';
 
-    INSERT INTO notifications (customer_id, message, month, year, month_year, sent_at)
+    INSERT INTO customer_notifications (customer_id, message, billing_month, billing_year, month_year, sent_at)
     VALUES (v_customer_id, v_message_text, v_month, v_year, v_month_year, CURRENT_TIMESTAMP);
 END;
 $$ LANGUAGE plpgsql;

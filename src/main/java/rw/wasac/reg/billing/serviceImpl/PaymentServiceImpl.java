@@ -1,3 +1,8 @@
+/**
+ * Service implementation providing Payment business logic.
+ *
+ * @author WASAC/REG Billing System
+ */
 package rw.wasac.reg.billing.serviceImpl;
 
 import lombok.RequiredArgsConstructor;
@@ -31,19 +36,23 @@ public class PaymentServiceImpl implements PaymentService {
     @Transactional
     public PaymentResponse recordPayment(PaymentRequest request) {
         Bill bill = billRepository.findById(request.getBillId())
-                .orElseThrow(() -> new ResourceNotFoundException("Bill not found with id: " + request.getBillId()));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Bill not found with id: " + request.getBillId()));
 
         if (bill.getStatus() == BillStatus.PAID) {
-            throw new BadRequestException("Bill is already fully paid");
+            throw new BadRequestException("This bill has already been fully paid");
         }
 
         if (request.getAmount().compareTo(bill.getBalance()) > 0) {
-            throw new BadRequestException("Payment amount exceeds bill balance");
+            throw new BadRequestException(
+                    "Payment amount exceeds outstanding balance of " + bill.getBalance() + " FRW");
         }
 
         Payment payment = Payment.builder()
                 .bill(bill)
                 .amount(request.getAmount())
+                .paymentMethod(request.getPaymentMethod())
+                .paymentDate(request.getPaymentDate())
                 .status(PaymentStatus.PENDING)
                 .notes(request.getNotes())
                 .build();
@@ -67,7 +76,8 @@ public class PaymentServiceImpl implements PaymentService {
         bill.setAmountPaid(newAmountPaid);
         bill.setBalance(newBalance.max(BigDecimal.ZERO));
 
-        if (newBalance.compareTo(BigDecimal.ZERO) <= 0) {
+        boolean fullyPaid = newBalance.compareTo(BigDecimal.ZERO) <= 0;
+        if (fullyPaid) {
             bill.setStatus(BillStatus.PAID);
             bill.setBalance(BigDecimal.ZERO);
         } else {
@@ -77,7 +87,12 @@ public class PaymentServiceImpl implements PaymentService {
         payment.setStatus(PaymentStatus.APPROVED);
         billRepository.save(bill);
         Payment saved = paymentRepository.save(payment);
-        billingNotificationService.notifyPaymentReceived(bill, saved);
+
+        if (fullyPaid) {
+            billingNotificationService.notifyBillFullyPaid(bill);
+        } else {
+            billingNotificationService.notifyPaymentReceived(bill, saved);
+        }
 
         return toResponse(saved);
     }
@@ -92,7 +107,10 @@ public class PaymentServiceImpl implements PaymentService {
         }
 
         payment.setStatus(PaymentStatus.REJECTED);
-        return toResponse(paymentRepository.save(payment));
+        Payment saved = paymentRepository.save(payment);
+        billingNotificationService.notifyPaymentRejected(payment.getBill(), saved);
+
+        return toResponse(saved);
     }
 
     @Override
@@ -121,6 +139,8 @@ public class PaymentServiceImpl implements PaymentService {
                 .billId(payment.getBill().getId())
                 .billReference(payment.getBill().getReference())
                 .amount(payment.getAmount())
+                .paymentMethod(payment.getPaymentMethod())
+                .paymentDate(payment.getPaymentDate())
                 .status(payment.getStatus())
                 .notes(payment.getNotes())
                 .createdAt(payment.getCreatedAt())

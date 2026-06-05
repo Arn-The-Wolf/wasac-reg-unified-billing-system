@@ -1,3 +1,8 @@
+/**
+ * Service implementation providing Auth business logic.
+ *
+ * @author WASAC/REG Billing System
+ */
 package rw.wasac.reg.billing.serviceImpl;
 
 import lombok.RequiredArgsConstructor;
@@ -26,6 +31,7 @@ import rw.wasac.reg.billing.exception.ResourceNotFoundException;
 import rw.wasac.reg.billing.repository.UserRepository;
 import rw.wasac.reg.billing.security.JwtTokenProvider;
 import rw.wasac.reg.billing.service.AuthService;
+import rw.wasac.reg.billing.service.EmailService;
 import rw.wasac.reg.billing.service.OtpService;
 
 @Slf4j
@@ -38,6 +44,7 @@ public class AuthServiceImpl implements AuthService {
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider jwtTokenProvider;
     private final OtpService otpService;
+    private final EmailService emailService;
 
     @Override
     @Transactional
@@ -88,6 +95,11 @@ public class AuthServiceImpl implements AuthService {
         user.setStatus(UserStatus.ACTIVE);
         userRepository.save(user);
 
+        String plainWelcome = String.format(
+                "Dear %s, your WASAC/REG billing account has been activated.", user.getFullName());
+        String htmlWelcome = rw.wasac.reg.billing.utils.EmailTemplateBuilder.buildWelcomeEmail(user.getFullName());
+        emailService.sendHtmlEmail(user.getEmail(), "WASAC — Welcome to Utility Billing", htmlWelcome, plainWelcome);
+
         return buildAuthResponse(user);
     }
 
@@ -102,7 +114,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public ApiResponse<OtpPendingResponse> login(LoginRequest request) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));

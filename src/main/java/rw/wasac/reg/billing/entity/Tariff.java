@@ -1,3 +1,8 @@
+/**
+ * JPA entity representing the Tariff domain model.
+ *
+ * @author WASAC/REG Billing System
+ */
 package rw.wasac.reg.billing.entity;
 
 import jakarta.persistence.*;
@@ -43,6 +48,9 @@ public class Tariff {
 
     @Column(nullable = false)
     private LocalDate effectiveFrom;
+
+    /** Null means the tariff remains active indefinitely until superseded. */
+    private LocalDate effectiveTo;
 
     @Column(precision = 12, scale = 2)
     private BigDecimal flatRate;

@@ -1,3 +1,8 @@
+/**
+ * Security component: JwtAuthenticationEntryPoint for JWT authentication.
+ *
+ * @author WASAC/REG Billing System
+ */
 package rw.wasac.reg.billing.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;

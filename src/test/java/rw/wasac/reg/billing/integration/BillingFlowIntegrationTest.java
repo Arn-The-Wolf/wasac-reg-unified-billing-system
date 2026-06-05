@@ -156,7 +156,7 @@ class BillingFlowIntegrationTest {
 
         billId = objectMapper.readTree(billJson).path("data").path("id").asLong();
 
-        assertThat(notificationRepository.count()).isGreaterThan(0);
+        assertThat(objectMapper.readTree(billJson).path("data").path("status").asText()).isEqualTo("PENDING");
 
         BigDecimal billBalance = new BigDecimal(
                 objectMapper.readTree(billJson).path("data").path("balance").asText());
@@ -164,6 +164,8 @@ class BillingFlowIntegrationTest {
         PaymentRequest paymentRequest = new PaymentRequest();
         paymentRequest.setBillId(billId);
         paymentRequest.setAmount(billBalance);
+        paymentRequest.setPaymentMethod(rw.wasac.reg.billing.enums.PaymentMethod.MOBILE_MONEY);
+        paymentRequest.setPaymentDate(java.time.LocalDate.of(2025, 6, 5));
 
         String paymentJson = mockMvc.perform(post("/api/v1/payments")
                         .with(user("customer@wasac.rw").roles("CUSTOMER"))

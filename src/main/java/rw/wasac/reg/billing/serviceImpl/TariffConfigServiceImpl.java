@@ -1,3 +1,8 @@
+/**
+ * Service implementation providing TariffConfig business logic.
+ *
+ * @author WASAC/REG Billing System
+ */
 package rw.wasac.reg.billing.serviceImpl;
 
 import lombok.RequiredArgsConstructor;
@@ -41,6 +46,7 @@ public class TariffConfigServiceImpl implements TariffConfigService {
                 .meterType(request.getMeterType())
                 .version(nextVersion)
                 .effectiveFrom(request.getEffectiveFrom())
+                .effectiveTo(request.getEffectiveTo())
                 .flatRate(request.getFlatRate())
                 .tiers(new ArrayList<>())
                 .build();
@@ -113,12 +119,15 @@ public class TariffConfigServiceImpl implements TariffConfigService {
     }
 
     private void validateTariffRequest(TariffRequest request) {
+        if (request.getEffectiveTo() != null && !request.getEffectiveTo().isAfter(request.getEffectiveFrom())) {
+            throw new BadRequestException("Effective end date must be after the effective start date");
+        }
         if (request.getTariffType() == TariffType.FLAT && request.getFlatRate() == null) {
-            throw new BadRequestException("Flat tariff requires flatRate");
+            throw new BadRequestException("Flat tariff requires a flat rate amount");
         }
         if (request.getTariffType() == TariffType.TIER
                 && (request.getTiers() == null || request.getTiers().isEmpty())) {
-            throw new BadRequestException("Tier tariff requires at least one tier");
+            throw new BadRequestException("Tier-based tariff requires at least one consumption tier");
         }
     }
 
@@ -139,6 +148,7 @@ public class TariffConfigServiceImpl implements TariffConfigService {
                 .meterType(tariff.getMeterType())
                 .version(tariff.getVersion())
                 .effectiveFrom(tariff.getEffectiveFrom())
+                .effectiveTo(tariff.getEffectiveTo())
                 .flatRate(tariff.getFlatRate())
                 .tiers(tiers)
                 .createdAt(tariff.getCreatedAt())

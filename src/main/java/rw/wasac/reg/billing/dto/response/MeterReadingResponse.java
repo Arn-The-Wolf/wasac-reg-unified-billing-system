@@ -1,3 +1,8 @@
+/**
+ * Response DTO for MeterReadingResponse API payloads.
+ *
+ * @author WASAC/REG Billing System
+ */
 package rw.wasac.reg.billing.dto.response;
 
 import lombok.AllArgsConstructor;

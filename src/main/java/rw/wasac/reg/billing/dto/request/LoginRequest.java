@@ -1,3 +1,8 @@
+/**
+ * Request DTO for LoginRequest with validation constraints.
+ *
+ * @author WASAC/REG Billing System
+ */
 package rw.wasac.reg.billing.dto.request;
 
 import jakarta.validation.constraints.Email;
@@ -10,12 +15,12 @@ import rw.wasac.reg.billing.constant.AppConstants;
 @Data
 public class LoginRequest {
 
-    @NotBlank
-    @Email
-    @Size(max = 150)
+    @NotBlank(message = AppConstants.EMAIL_REQUIRED_MESSAGE)
+    @Email(message = AppConstants.EMAIL_MESSAGE)
+    @Size(max = 150, message = AppConstants.EMAIL_MESSAGE)
     private String email;
 
-    @NotBlank
+    @NotBlank(message = AppConstants.PASSWORD_MESSAGE)
     @Pattern(regexp = AppConstants.PASSWORD_PATTERN, message = AppConstants.PASSWORD_MESSAGE)
     private String password;
 }

@@ -1,3 +1,8 @@
+/**
+ * Response DTO for TariffResponse API payloads.
+ *
+ * @author WASAC/REG Billing System
+ */
 package rw.wasac.reg.billing.dto.response;
 
 import lombok.AllArgsConstructor;
@@ -23,6 +28,7 @@ public class TariffResponse {
     private MeterType meterType;
     private Integer version;
     private LocalDate effectiveFrom;
+    private LocalDate effectiveTo;
     private BigDecimal flatRate;
     private List<TariffTierResponse> tiers;
     private LocalDateTime createdAt;

@@ -1,3 +1,8 @@
+/**
+ * Spring Data JPA repository for Customer persistence.
+ *
+ * @author WASAC/REG Billing System
+ */
 package rw.wasac.reg.billing.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;

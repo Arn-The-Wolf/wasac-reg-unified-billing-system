@@ -1,3 +1,8 @@
+/**
+ * Service implementation providing Otp business logic.
+ *
+ * @author WASAC/REG Billing System
+ */
 package rw.wasac.reg.billing.serviceImpl;
 
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +18,7 @@ import rw.wasac.reg.billing.exception.BadRequestException;
 import rw.wasac.reg.billing.repository.OtpRepository;
 import rw.wasac.reg.billing.service.EmailService;
 import rw.wasac.reg.billing.service.OtpService;
+import rw.wasac.reg.billing.utils.EmailTemplateBuilder;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
@@ -49,12 +55,12 @@ public class OtpServiceImpl implements OtpService {
                 .build();
         otpRepository.save(otp);
 
-        String subject = "WASAC/REG Billing - Your verification code";
-        String body = String.format(
-                "Dear %s,%n%nYour verification code is: %s%n%nThis code expires in %d minutes.%n%n"
-                        + "If you did not request this code, please ignore this email.%n%nWASAC/REG Billing",
+        String subject = "WASAC — Your Verification Code";
+        String plainBody = String.format(
+                "Dear %s, Your verification code is: %s. Expires in %d minutes.",
                 recipientName, otpCode, OTP_EXPIRY_MINUTES);
-        emailService.sendEmail(email, subject, body);
+        String htmlBody = EmailTemplateBuilder.buildOtpEmail(recipientName, otpCode, OTP_EXPIRY_MINUTES);
+        emailService.sendHtmlEmail(email, subject, htmlBody, plainBody);
 
         return ApiResponse.<String>builder()
                 .success(true)

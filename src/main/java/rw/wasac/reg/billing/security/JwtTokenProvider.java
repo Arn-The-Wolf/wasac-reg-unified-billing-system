@@ -1,3 +1,8 @@
+/**
+ * Security component: JwtTokenProvider for JWT authentication.
+ *
+ * @author WASAC/REG Billing System
+ */
 package rw.wasac.reg.billing.security;
 
 import io.jsonwebtoken.Claims;

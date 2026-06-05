@@ -1,3 +1,8 @@
+/**
+ * Utility class providing BillingCalculator helper methods.
+ *
+ * @author WASAC/REG Billing System
+ */
 package rw.wasac.reg.billing.utils;
 
 import org.springframework.stereotype.Component;

@@ -1,3 +1,8 @@
+/**
+ * Service contract defining CustomUserDetailsService operations.
+ *
+ * @author WASAC/REG Billing System
+ */
 package rw.wasac.reg.billing.security;
 
 import lombok.RequiredArgsConstructor;

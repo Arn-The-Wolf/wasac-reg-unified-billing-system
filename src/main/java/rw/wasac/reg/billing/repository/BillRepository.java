@@ -1,3 +1,8 @@
+/**
+ * Spring Data JPA repository for Bill persistence.
+ *
+ * @author WASAC/REG Billing System
+ */
 package rw.wasac.reg.billing.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,4 +17,5 @@ public interface BillRepository extends JpaRepository<Bill, Long> {
     Optional<Bill> findByMeterIdAndBillingMonthAndBillingYear(Long meterId, Integer month, Integer year);
     List<Bill> findByCustomerId(Long customerId);
     List<Bill> findByStatus(BillStatus status);
+    boolean existsByMeterReadingId(Long meterReadingId);
 }

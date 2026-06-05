@@ -1,3 +1,8 @@
+/**
+ * Response DTO for ApiResponse API payloads.
+ *
+ * @author WASAC/REG Billing System
+ */
 package rw.wasac.reg.billing.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;

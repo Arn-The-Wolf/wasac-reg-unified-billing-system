@@ -1,3 +1,8 @@
+/**
+ * Service contract defining MeterService operations.
+ *
+ * @author WASAC/REG Billing System
+ */
 package rw.wasac.reg.billing.service;
 
 import rw.wasac.reg.billing.dto.request.MeterRequest;

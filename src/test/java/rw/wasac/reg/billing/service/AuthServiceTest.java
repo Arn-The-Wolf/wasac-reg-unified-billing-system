@@ -48,6 +48,8 @@ class AuthServiceTest {
     private JwtTokenProvider jwtTokenProvider;
     @Mock
     private OtpService otpService;
+    @Mock
+    private EmailService emailService;
 
     @InjectMocks
     private AuthServiceImpl authService;
@@ -120,6 +122,7 @@ class AuthServiceTest {
         assertThat(user.getStatus()).isEqualTo(UserStatus.ACTIVE);
         verify(otpService).verifyOtpCode(request, OtpPurpose.SIGNUP);
         verify(otpService).consumeVerifiedOtp("test@wasac.rw", OtpPurpose.SIGNUP, "123456");
+        verify(emailService).sendHtmlEmail(eq("test@wasac.rw"), eq("WASAC — Welcome to Utility Billing"), any(String.class), any(String.class));
     }
 
     @Test

@@ -1,3 +1,8 @@
+/**
+ * Spring Data JPA repository for Tariff persistence.
+ *
+ * @author WASAC/REG Billing System
+ */
 package rw.wasac.reg.billing.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,7 +17,9 @@ import java.util.Optional;
 
 public interface TariffRepository extends JpaRepository<Tariff, Long> {
 
-    @Query("SELECT t FROM Tariff t WHERE t.meterType = :meterType AND t.effectiveFrom <= :periodStart ORDER BY t.effectiveFrom DESC, t.version DESC")
+    @Query("SELECT t FROM Tariff t WHERE t.meterType = :meterType AND t.effectiveFrom <= :periodStart "
+            + "AND (t.effectiveTo IS NULL OR t.effectiveTo >= :periodStart) "
+            + "ORDER BY t.effectiveFrom DESC, t.version DESC")
     List<Tariff> findApplicableTariffs(@Param("meterType") MeterType meterType, @Param("periodStart") LocalDate periodStart);
 
     default Optional<Tariff> findActiveTariffForPeriod(MeterType meterType, LocalDate periodStart) {

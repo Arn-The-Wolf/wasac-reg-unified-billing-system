@@ -1,3 +1,8 @@
+/**
+ * Spring configuration component: OpenApiConfig.
+ *
+ * @author WASAC/REG Billing System
+ */
 package rw.wasac.reg.billing.config;
 
 import io.swagger.v3.oas.models.Components;

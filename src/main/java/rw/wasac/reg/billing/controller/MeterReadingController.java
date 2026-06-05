@@ -1,3 +1,8 @@
+/**
+ * REST controller exposing MeterReadingController endpoints for the WASAC/REG billing system.
+ *
+ * @author WASAC/REG Billing System
+ */
 package rw.wasac.reg.billing.controller;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -47,5 +52,19 @@ public class MeterReadingController {
     @PreAuthorize("hasAnyRole('ADMIN', 'OPERATOR', 'FINANCE', 'CUSTOMER')")
     public ResponseEntity<ApiResponse<List<MeterReadingResponse>>> getByMeter(@PathVariable Long meterId) {
         return ResponseEntity.ok(ApiResponse.success("Readings retrieved", meterReadingService.getByMeterId(meterId)));
+    }
+
+    @GetMapping("/meter/{meterId}/suggested-previous")
+    @PreAuthorize("hasAnyRole('ADMIN', 'OPERATOR')")
+    public ResponseEntity<ApiResponse<java.math.BigDecimal>> getSuggestedPrevious(@PathVariable Long meterId) {
+        return ResponseEntity.ok(ApiResponse.success(
+                "Suggested previous reading retrieved", meterReadingService.getSuggestedPreviousReading(meterId)));
+    }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('OPERATOR')")
+    public ResponseEntity<ApiResponse<Void>> voidReading(@PathVariable Long id) {
+        meterReadingService.voidReading(id);
+        return ResponseEntity.ok(ApiResponse.success("Meter reading voided successfully"));
     }
 }

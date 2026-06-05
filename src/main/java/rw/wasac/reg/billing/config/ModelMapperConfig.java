@@ -1,3 +1,8 @@
+/**
+ * Spring configuration component: ModelMapperConfig.
+ *
+ * @author WASAC/REG Billing System
+ */
 package rw.wasac.reg.billing.config;
 
 import org.modelmapper.ModelMapper;

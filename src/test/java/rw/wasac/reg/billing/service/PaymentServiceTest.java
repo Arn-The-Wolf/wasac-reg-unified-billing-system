@@ -10,6 +10,7 @@ import rw.wasac.reg.billing.entity.Bill;
 import rw.wasac.reg.billing.entity.Customer;
 import rw.wasac.reg.billing.entity.Payment;
 import rw.wasac.reg.billing.enums.BillStatus;
+import rw.wasac.reg.billing.enums.PaymentMethod;
 import rw.wasac.reg.billing.enums.PaymentStatus;
 import rw.wasac.reg.billing.exception.BadRequestException;
 import rw.wasac.reg.billing.repository.BillRepository;
@@ -52,6 +53,8 @@ class PaymentServiceTest {
         PaymentRequest request = new PaymentRequest();
         request.setBillId(1L);
         request.setAmount(new BigDecimal("600"));
+        request.setPaymentMethod(PaymentMethod.MOBILE_MONEY);
+        request.setPaymentDate(java.time.LocalDate.now());
 
         when(billRepository.findById(1L)).thenReturn(Optional.of(bill));
 
@@ -74,6 +77,8 @@ class PaymentServiceTest {
                 .id(10L)
                 .bill(bill)
                 .amount(new BigDecimal("400"))
+                .paymentMethod(PaymentMethod.BANK_TRANSFER)
+                .paymentDate(java.time.LocalDate.now())
                 .status(PaymentStatus.PENDING)
                 .build();
 
@@ -85,6 +90,6 @@ class PaymentServiceTest {
         assertThat(bill.getStatus()).isEqualTo(BillStatus.PAID);
         assertThat(bill.getBalance()).isEqualByComparingTo(BigDecimal.ZERO);
         assertThat(response.getStatus()).isEqualTo(PaymentStatus.APPROVED);
-        verify(billingNotificationService).notifyPaymentReceived(bill, payment);
+        verify(billingNotificationService).notifyBillFullyPaid(bill);
     }
 }

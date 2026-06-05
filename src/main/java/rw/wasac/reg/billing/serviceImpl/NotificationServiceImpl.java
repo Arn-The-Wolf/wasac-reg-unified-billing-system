@@ -1,3 +1,8 @@
+/**
+ * Service implementation providing Notification business logic.
+ *
+ * @author WASAC/REG Billing System
+ */
 package rw.wasac.reg.billing.serviceImpl;
 
 import lombok.RequiredArgsConstructor;

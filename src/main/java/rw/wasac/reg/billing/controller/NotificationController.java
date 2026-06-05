@@ -1,3 +1,8 @@
+/**
+ * REST controller exposing NotificationController endpoints for the WASAC/REG billing system.
+ *
+ * @author WASAC/REG Billing System
+ */
 package rw.wasac.reg.billing.controller;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
