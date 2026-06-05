@@ -1,0 +1,22 @@
+$kind: collection
+name: WASAC Billing System
+description: Complete API collection for the WASAC Unified Billing System. Covers authentication, user management, customers, meters, readings, bills, payments, tariff configuration, notifications, and reports.
+variables:
+  - key: baseUrl
+    value: 'http://localhost:8080'
+  - key: authToken
+    value: ''
+  - key: userId
+    value: ''
+  - key: customerId
+    value: ''
+  - key: meterId
+    value: ''
+  - key: meterReadingId
+    value: ''
+  - key: billId
+    value: ''
+  - key: paymentId
+    value: ''
+  - key: tariffId
+    value: ''

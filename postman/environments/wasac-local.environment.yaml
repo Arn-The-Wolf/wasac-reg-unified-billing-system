@@ -1,0 +1,29 @@
+name: WASAC Local
+values:
+  - key: baseUrl
+    value: 'http://localhost:8080'
+    enabled: true
+  - key: authToken
+    value: ''
+    enabled: true
+  - key: customerId
+    value: '1'
+    enabled: true
+  - key: meterId
+    value: '1'
+    enabled: true
+  - key: meterReadingId
+    value: '1'
+    enabled: true
+  - key: billId
+    value: '1'
+    enabled: true
+  - key: paymentId
+    value: '1'
+    enabled: true
+  - key: userId
+    value: '1'
+    enabled: true
+  - key: tariffId
+    value: '1'
+    enabled: true

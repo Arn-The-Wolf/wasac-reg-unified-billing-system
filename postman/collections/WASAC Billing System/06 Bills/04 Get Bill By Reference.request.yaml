@@ -1,0 +1,17 @@
+$kind: http-request
+name: Get Bill By Reference
+method: GET
+url: '{{baseUrl}}/api/v1/bills/reference/BILL-REF-001'
+order: 4000
+auth:
+  type: bearer
+  credentials:
+    - key: token
+      value: '{{authToken}}'
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status is 200 or 404", function () {
+        pm.expect(pm.response.code).to.be.oneOf([200, 404]);
+      });

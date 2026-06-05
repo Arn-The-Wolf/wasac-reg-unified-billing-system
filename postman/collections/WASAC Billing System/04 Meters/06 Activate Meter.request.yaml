@@ -1,0 +1,17 @@
+$kind: http-request
+name: Activate Meter
+method: PATCH
+url: '{{baseUrl}}/api/v1/meters/{{meterId}}/activate'
+order: 6000
+auth:
+  type: bearer
+  credentials:
+    - key: token
+      value: '{{authToken}}'
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status is 200", function () {
+        pm.response.to.have.status(200);
+      });

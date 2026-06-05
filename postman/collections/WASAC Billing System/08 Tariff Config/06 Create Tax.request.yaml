@@ -1,0 +1,28 @@
+$kind: http-request
+name: Create Tax
+method: POST
+url: '{{baseUrl}}/api/v1/config/taxes'
+order: 6000
+auth:
+  type: bearer
+  credentials:
+    - key: token
+      value: '{{authToken}}'
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "name": "VAT 18%",
+      "percentage": 18,
+      "effectiveFrom": "2024-01-01"
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status is 200 or 201", function () {
+        pm.expect(pm.response.code).to.be.oneOf([200, 201]);
+      });

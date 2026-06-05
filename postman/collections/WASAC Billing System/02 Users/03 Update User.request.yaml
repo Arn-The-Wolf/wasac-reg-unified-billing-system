@@ -1,0 +1,30 @@
+$kind: http-request
+name: Update User
+method: PUT
+url: '{{baseUrl}}/api/v1/users/{{userId}}'
+order: 3000
+auth:
+  type: bearer
+  credentials:
+    - key: token
+      value: '{{authToken}}'
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "fullName": "Updated Admin",
+      "countryCode": "+250",
+      "phoneNumber": "788000001",
+      "status": "ACTIVE",
+      "role": "ROLE_ADMIN"
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status is 200", function () {
+        pm.response.to.have.status(200);
+      });

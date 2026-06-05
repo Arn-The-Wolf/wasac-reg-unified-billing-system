@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>WASAC Billing — Spring Boot System Flow</title>
+  <style>
+    :root { --wasac-blue: #0066B3; --wasac-dark: #004080; --wasac-light: #E8F4FC; --text: #3d3d3a; --muted: #73726c; }
+    body { font-family: "Segoe UI", system-ui, sans-serif; margin: 0; padding: 2rem; color: var(--text); background: #faf9f6; }
+    h1 { color: var(--wasac-blue); margin-bottom: 0.25rem; }
+    .subtitle { color: var(--muted); margin-bottom: 1.5rem; }
+    section { background: #fff; border-radius: 10px; padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 2px 8px rgba(0,102,179,.08); }
+    h2 { font-size: 1.1rem; color: var(--wasac-blue); margin-top: 0; }
+    .diagram { overflow-x: auto; padding: 0.5rem 0; }
+    .diagram svg { max-width: 100%; min-width: 720px; }
+    /* Sequence diagram message labels — force readable black text */
+    #auth-flow svg text,
+    #auth-flow svg tspan {
+      fill: #000000 !important;
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+    th, td { border: 1px solid #d0d0cc; padding: 0.5rem 0.75rem; text-align: left; }
+    th { background: var(--wasac-light); color: var(--wasac-dark); }
+  </style>
+</head>
+<body>
+  <h1>WASAC / REG Utility Billing — Spring Boot Flow</h1>
+  <p class="subtitle">Layered architecture &amp; end-to-end workflows from the live codebase</p>
+
+  <section>
+    <h2>1. Application Architecture (Layered)</h2>
+    <div class="diagram" id="arch-flow"></div>
+  </section>
+
+  <section>
+    <h2>2. Authentication Flow (JWT + OTP 2FA)</h2>
+    <div class="diagram" id="auth-flow"></div>
+  </section>
+
+  <section>
+    <h2>3. Core Billing Pipeline</h2>
+    <div class="diagram" id="billing-flow"></div>
+  </section>
+
+  <section>
+    <h2>4. Notification &amp; Reporting Channels</h2>
+    <div class="diagram" id="notify-flow"></div>
+  </section>
+
+  <section>
+    <h2>5. REST API Surface (10 controllers)</h2>
+    <table>
+      <thead>
+        <tr><th>Controller</th><th>Base Path</th><th>Primary Roles</th><th>Key Actions</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>AuthController</td><td>/api/v1/auth</td><td>Public</td><td>signup, login, OTP verify/resend → JWT</td></tr>
+        <tr><td>UserController</td><td>/api/v1/users</td><td>ADMIN</td><td>list/update/activate/deactivate staff accounts</td></tr>
+        <tr><td>CustomerController</td><td>/api/v1/customers</td><td>ADMIN, OPERATOR</td><td>CRUD, activate/deactivate → email alerts</td></tr>
+        <tr><td>MeterController</td><td>/api/v1/meters</td><td>ADMIN, OPERATOR</td><td>CRUD, activate/deactivate meters per customer</td></tr>
+        <tr><td>MeterReadingController</td><td>/api/v1/meter-readings</td><td>OPERATOR, INSPECTOR</td><td>capture reading, void, suggested-previous</td></tr>
+        <tr><td>TariffConfigController</td><td>/api/v1/config</td><td>ADMIN (write), FINANCE (read)</td><td>tariffs, tiers, fixed charges, taxes, penalties</td></tr>
+        <tr><td>BillController</td><td>/api/v1/bills</td><td>ADMIN, OPERATOR (generate)</td><td>generate bill from reading → customer email + DB trigger</td></tr>
+        <tr><td>PaymentController</td><td>/api/v1/payments</td><td>CUSTOMER/FINANCE (record), FINANCE (approve)</td><td>pending → approved/rejected → emails</td></tr>
+        <tr><td>NotificationController</td><td>/api/v1/notifications</td><td>ADMIN, FINANCE, CUSTOMER</td><td>read in-app customer_notifications</td></tr>
+        <tr><td>ReportController</td><td>/api/v1/reports</td><td>role-based PDF</td><td>receipts, admin summary, inspector meter report</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <script type="module">
+    import mermaid from 'https://esm.sh/mermaid@11/dist/mermaid.esm.min.mjs';
+    await document.fonts.ready;
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: 'base',
+      fontFamily: '"Segoe UI", system-ui, sans-serif',
+      flowchart: { curve: 'basis', htmlLabels: true },
+      sequence: { actorMargin: 60, messageMargin: 40 },
+      themeVariables: {
+        darkMode: false,
+        fontSize: '12px',
+        primaryColor: '#E8F4FC',
+        primaryBorderColor: '#0066B3',
+        primaryTextColor: '#000000',
+        secondaryTextColor: '#000000',
+        tertiaryTextColor: '#000000',
+        textColor: '#000000',
+        lineColor: '#0066B3',
+        signalColor: '#0066B3',
+        signalTextColor: '#000000',
+        actorTextColor: '#000000',
+        actorLineColor: '#0066B3',
+        labelTextColor: '#000000',
+        noteTextColor: '#000000',
+        noteBkgColor: '#E8F4FC',
+        noteBorderColor: '#0066B3',
+      },
+    });
+
+    async function render(id, diagram) {
+      const { svg } = await mermaid.render(id + '-svg', diagram);
+      const container = document.getElementById(id);
+      container.innerHTML = svg;
+      if (id === 'auth-flow') {
+        container.querySelectorAll('text, tspan').forEach((node) => {
+          node.setAttribute('fill', '#000000');
+        });
+      }
+    }
+
+    await render('arch-flow', `flowchart TB
+      subgraph clients["Clients"]
+        SW[Swagger UI / REST Client]
+        CUST[Customer Portal]
+        STAFF[Admin / Operator / Finance / Inspector]
+      end
+
+      subgraph spring["Spring Boot 3.5 — wasac-reg-unified-billing-system"]
+        SEC[JwtAuthenticationFilter<br/>SecurityConfig + @PreAuthorize]
+        subgraph controllers["Controllers — /api/v1"]
+          AC[AuthController]
+          UC[UserController]
+          CC[CustomerController]
+          MC[MeterController]
+          MRC[MeterReadingController]
+          TC[TariffConfigController]
+          BC[BillController]
+          PC[PaymentController]
+          NC[NotificationController]
+          RC[ReportController]
+        end
+        subgraph services["Service Layer"]
+          AS[AuthServiceImpl]
+          BS[BillServiceImpl]
+          PS[PaymentServiceImpl]
+          MRS[MeterReadingServiceImpl]
+          TCS[TariffConfigServiceImpl]
+          BNS[BillingNotificationServiceImpl]
+          SNS[StaffNotificationServiceImpl]
+          PRS[PdfReportServiceImpl]
+          OS[OtpServiceImpl]
+          ES[EmailServiceImpl]
+        end
+        subgraph repos["Spring Data JPA Repositories"]
+          UR[UserRepository]
+          CR[CustomerRepository]
+          MR[MeterRepository]
+          MRR[MeterReadingRepository]
+          BR[BillRepository]
+          PR[PaymentRepository]
+          TR[TariffRepository + Tier/Charge/Tax/Penalty]
+          NR[NotificationRepository]
+          OR[OtpRepository]
+        end
+        UTIL[BillingCalculator + WasacPdfBuilder<br/>EmailTemplateBuilder + SecurityUtils]
+      end
+
+      DB[(PostgreSQL — wasac_billing_db)]
+      SMTP[Gmail SMTP]
+      TRIG[PostgreSQL Triggers<br/>customer_notifications]
+
+      SW & CUST & STAFF --> SEC
+      SEC --> controllers
+      controllers --> services
+      services --> repos
+      services --> UTIL
+      repos --> DB
+      OS & BNS & SNS --> ES --> SMTP
+      BS --> TRIG
+      PRS --> UTIL
+    `);
+
+    await render('auth-flow', `sequenceDiagram
+      actor User
+      participant AC as AuthController
+      participant AS as AuthServiceImpl
+      participant OS as OtpServiceImpl
+      participant ES as EmailServiceImpl
+      participant UR as UserRepository
+      participant JWT as JwtTokenProvider
+
+      User->>AC: POST /auth/signup
+      AC->>AS: signup()
+      AS->>UR: save user PENDING_VERIFICATION
+      AS->>OS: sendOtp SIGNUP
+      OS->>ES: HTML OTP email
+      ES-->>User: verification code
+
+      User->>AC: POST /auth/signup/verify-otp
+      AC->>AS: verifySignupOtp()
+      AS->>UR: status = ACTIVE
+      AS->>ES: welcome email
+      AS->>JWT: issue token
+      JWT-->>User: JWT Bearer
+
+      User->>AC: POST /auth/login
+      AC->>AS: login() authenticate password
+      AS->>OS: sendOtp LOGIN
+      OS->>ES: HTML OTP email
+
+      User->>AC: POST /auth/login/verify-otp
+      AC->>AS: verifyLoginOtp()
+      AS->>JWT: issue token
+      JWT-->>User: JWT Bearer
+
+      Note over User,JWT: All other endpoints require Authorization Bearer header
+    `);
+
+    await render('billing-flow', `flowchart LR
+      subgraph setup["Setup Phase"]
+        A1[ADMIN creates tariff config<br/>TariffConfigController]
+        A2[ADMIN/OPERATOR registers customer + meter]
+      end
+
+      subgraph capture["Reading Phase — OPERATOR / INSPECTOR"]
+        R1[POST /meter-readings<br/>MeterReadingServiceImpl]
+        R2[Auto-fill previous reading<br/>Validate active customer/meter]
+        R3[Save meter_readings row]
+        R4[Staff email: inspector alert<br/>operator confirmation]
+      end
+
+      subgraph billgen["Billing Phase — ADMIN / OPERATOR"]
+        B1[POST /bills/generate<br/>BillServiceImpl]
+        B2[Lookup active tariff by meter type + period]
+        B3[BillingCalculator: tariff + fixed + tax + penalty]
+        B4[Save bills row PENDING]
+        B5[Email customer: new bill]
+        B6[Email admin + DB trigger notification]
+      end
+
+      subgraph pay["Payment Phase"]
+        P1[POST /payments — CUSTOMER/FINANCE<br/>status PENDING]
+        P2[Email customer: submitted awaiting approval]
+        P3[Email finance/admin: action required]
+        P4[PATCH /payments/id/approve — FINANCE]
+        P5{Balance zero?}
+        P6[Bill PAID + receipt email]
+        P7[Bill PARTIALLY_PAID]
+        P8[PATCH /payments/id/reject]
+        P9[Rejection emails]
+      end
+
+      subgraph output["Outputs"]
+        O1[GET /reports/receipts — PDF]
+        O2[GET /reports/admin/billing-summary — PDF]
+        O3[GET /reports/inspector/meter-readings — PDF]
+        O4[GET /notifications — in-app history]
+      end
+
+      A1 --> A2 --> R1 --> R2 --> R3 --> R4
+      R3 --> B1 --> B2 --> B3 --> B4 --> B5 --> B6
+      B4 --> P1 --> P2 --> P3 --> P4 --> P5
+      P5 -->|yes| P6
+      P5 -->|no| P7
+      P1 --> P8 --> P9
+      P6 & P7 --> O1
+      B4 --> O2
+      R3 --> O3
+      B6 --> O4
+    `);
+
+    await render('notify-flow', `flowchart TB
+      subgraph events["Business Events"]
+        E1[Bill generated]
+        E2[Payment submitted]
+        E3[Payment approved]
+        E4[Payment rejected]
+        E5[Meter reading captured]
+        E6[Customer activated/deactivated]
+        E7[User deactivated]
+        E8[Auth OTP / Welcome]
+      end
+
+      subgraph java["Java Email Layer"]
+        BNS[BillingNotificationServiceImpl<br/>→ customer.email]
+        SNS[StaffNotificationServiceImpl<br/>→ users by role]
+        OS[OtpServiceImpl / AuthServiceImpl]
+        ET[EmailTemplateBuilder<br/>WASAC blue HTML theme]
+        ES[EmailServiceImpl → Gmail SMTP]
+      end
+
+      subgraph db["PostgreSQL In-App Layer"]
+        T1[after_bill_insert trigger]
+        T2[after_bill_paid trigger]
+        CN[(customer_notifications)]
+      end
+
+      E1 --> BNS & SNS & T1
+      E2 --> BNS & SNS
+      E3 --> BNS & SNS
+      E4 --> BNS & SNS
+      E5 --> SNS
+      E6 & E7 --> SNS
+      E8 --> OS
+      BNS & SNS & OS --> ET --> ES
+      T1 & T2 --> CN
+
+      subgraph pdf["PDF Reports — no email, download only"]
+        PDF[PdfReportServiceImpl + WasacPdfBuilder]
+      end
+    `);
+  </script>
+</body>
+</html>

@@ -1,0 +1,37 @@
+$kind: http-request
+name: Create Meter Reading
+method: POST
+url: '{{baseUrl}}/api/v1/meter-readings/'
+order: 1000
+auth:
+  type: bearer
+  credentials:
+    - key: token
+      value: '{{authToken}}'
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "meterId": "{{meterId}}",
+      "previousReading": 0,
+      "currentReading": 150,
+      "readingDate": "2024-06-01"
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status is 200 or 201", function () {
+        pm.expect(pm.response.code).to.be.oneOf([200, 201]);
+      });
+      pm.test("Reading created with id", function () {
+        const json = pm.response.json();
+        const data = json.data || json;
+        if (data && data.id) {
+          pm.environment.set("meterReadingId", data.id);
+        }
+        pm.expect(data).to.have.property("id");
+      });

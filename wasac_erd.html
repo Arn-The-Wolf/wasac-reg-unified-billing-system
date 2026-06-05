@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>WASAC Billing — Entity Relationship Diagram</title>
+  <style>
+    :root { --wasac-blue: #0066B3; --wasac-light: #E8F4FC; --text: #3d3d3a; --muted: #73726c; }
+    body { font-family: "Segoe UI", system-ui, sans-serif; margin: 0; padding: 2rem; color: var(--text); background: #faf9f6; }
+    h1 { color: var(--wasac-blue); margin-bottom: 0.25rem; }
+    .subtitle { color: var(--muted); margin-bottom: 1.5rem; }
+    section { background: #fff; border-radius: 10px; padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 2px 8px rgba(0,102,179,.08); }
+    h2 { font-size: 1.1rem; color: var(--wasac-blue); margin-top: 0; }
+    ul { line-height: 1.7; padding-left: 1.25rem; }
+    li strong { color: var(--wasac-blue); }
+    .note { background: var(--wasac-light); border-left: 4px solid var(--wasac-blue); padding: 0.75rem 1rem; border-radius: 4px; font-size: 0.9rem; margin-top: 1rem; }
+    #erd { padding: 1rem 0; overflow-x: auto; }
+    #erd svg { max-width: 100%; min-width: 900px; }
+  </style>
+</head>
+<body>
+  <h1>WASAC / REG Utility Billing — ERD</h1>
+  <p class="subtitle">Aligned with JPA entities in <code>rw.wasac.reg.billing.entity</code> (Spring Boot 3.5)</p>
+
+  <section>
+    <h2>Critique of the Previous Diagram</h2>
+    <ul>
+      <li><strong>Wrong / missing tables</strong> — omitted <code>otps</code>, <code>tariff_tiers</code>, <code>fixed_charges</code>, <code>taxes</code>, <code>penalties</code>, and the <code>users</code> ↔ <code>customers</code> link.</li>
+      <li><strong>Incorrect column names</strong> — e.g. <code>full_names</code> (actual: <code>full_name</code>), <code>bill_reference</code> (actual: <code>reference</code>), <code>month/year</code> (actual: <code>billing_month/billing_year</code>).</li>
+      <li><strong>Phantom columns</strong> — <code>customers.code</code>, <code>customers.country_code</code>, <code>meter_readings.consumption</code>, <code>bills.due_date</code>, <code>bills.tariff_id</code>, <code>payments.payment_reference</code>, <code>payments.customer_id</code>, <code>notifications.is_read</code> do not exist in the codebase.</li>
+      <li><strong>Flattened tariff model</strong> — real design uses versioned <code>tariffs</code> (FLAT or TIERED + <code>tariff_tiers</code>) and separate <code>fixed_charges</code>, <code>taxes</code>, <code>penalties</code> tables resolved at bill-generation time — not stored as FK on <code>bills</code>.</li>
+      <li><strong>Wrong notification entity</strong> — table is <code>customer_notifications</code> with <code>sent_at</code> and <code>month_year</code>; no read/unread flag.</li>
+      <li><strong>Missing payment workflow</strong> — <code>payments.status</code> (PENDING → APPROVED/REJECTED) and <code>notes</code> are core to finance approval.</li>
+      <li><strong>Wrong types</strong> — monetary fields are <code>decimal(12,2)</code> (<code>BigDecimal</code>), not <code>double</code>.</li>
+      <li><strong>Missing uniqueness</strong> — one reading per meter per billing period; one bill per meter per billing period.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Corrected ERD (13 tables, actual FK relationships)</h2>
+    <div class="note">
+      <strong>Logical only (no FK):</strong> <code>tariffs</code>, <code>fixed_charges</code>, <code>taxes</code>, and <code>penalties</code> are looked up by <code>BillServiceImpl</code> using meter type and billing period — amounts are snapshotted on the bill row.
+      <br><strong>Logical only:</strong> <code>otps</code> links to users by <code>email</code>, not a foreign key.
+    </div>
+    <div id="erd"></div>
+  </section>
+
+  <script type="module">
+    import mermaid from 'https://esm.sh/mermaid@11/dist/mermaid.esm.min.mjs';
+    const dark = matchMedia('(prefers-color-scheme: dark)').matches;
+    await document.fonts.ready;
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: 'base',
+      fontFamily: '"Segoe UI", system-ui, sans-serif',
+      themeVariables: {
+        darkMode: dark,
+        fontSize: '12px',
+        primaryColor: dark ? '#1a3a5c' : '#E8F4FC',
+        primaryBorderColor: '#0066B3',
+        primaryTextColor: dark ? '#e8f4fc' : '#004080',
+        lineColor: '#0066B3',
+      },
+    });
+
+    const diagram = `erDiagram
+      users {
+        bigint id PK
+        varchar full_name
+        varchar email UK
+        varchar country_code
+        varchar phone_number
+        varchar password
+        enum status "ACTIVE|INACTIVE|PENDING_VERIFICATION"
+        enum role "ADMIN|OPERATOR|INSPECTOR|FINANCE|CUSTOMER"
+        bigint customer_id FK "nullable, CUSTOMER role only"
+        timestamp created_at
+        timestamp updated_at
+      }
+
+      customers {
+        bigint id PK
+        varchar full_name
+        varchar national_id UK
+        varchar email UK
+        varchar phone
+        varchar address
+        enum status "ACTIVE|INACTIVE"
+        timestamp created_at
+        timestamp updated_at
+      }
+
+      meters {
+        bigint id PK
+        varchar meter_number UK
+        enum type "WATER|ELECTRICITY"
+        date installation_date
+        enum status "ACTIVE|INACTIVE"
+        bigint customer_id FK
+        timestamp created_at
+        timestamp updated_at
+      }
+
+      meter_readings {
+        bigint id PK
+        bigint meter_id FK
+        decimal previous_reading
+        decimal current_reading
+        date reading_date
+        int billing_month
+        int billing_year
+        timestamp created_at
+      }
+
+      tariffs {
+        bigint id PK
+        varchar name
+        enum tariff_type "FLAT|TIERED"
+        enum meter_type "WATER|ELECTRICITY"
+        int version
+        date effective_from
+        date effective_to "nullable"
+        decimal flat_rate "nullable if TIERED"
+        timestamp created_at
+        timestamp updated_at
+      }
+
+      tariff_tiers {
+        bigint id PK
+        bigint tariff_id FK
+        decimal from_units
+        decimal to_units "nullable = unlimited"
+        decimal rate_per_unit
+      }
+
+      fixed_charges {
+        bigint id PK
+        varchar name
+        decimal amount
+        date effective_from
+        timestamp created_at
+      }
+
+      taxes {
+        bigint id PK
+        varchar name
+        decimal percentage
+        date effective_from
+        timestamp created_at
+      }
+
+      penalties {
+        bigint id PK
+        varchar name
+        decimal percentage
+        date effective_from
+        timestamp created_at
+      }
+
+      bills {
+        bigint id PK
+        varchar reference UK
+        bigint customer_id FK
+        bigint meter_id FK
+        bigint meter_reading_id FK
+        int billing_month
+        int billing_year
+        decimal consumption
+        decimal tariff_amount
+        decimal fixed_charge_amount
+        decimal tax_amount
+        decimal penalty_amount
+        decimal total_amount
+        decimal amount_paid
+        decimal balance
+        enum status "PENDING|PARTIALLY_PAID|PAID|OVERDUE"
+        timestamp created_at
+        timestamp updated_at
+      }
+
+      payments {
+        bigint id PK
+        bigint bill_id FK
+        decimal amount
+        enum payment_method "CASH|BANK_TRANSFER|MOBILE_MONEY|CARD"
+        date payment_date
+        enum status "PENDING|APPROVED|REJECTED"
+        varchar notes "nullable"
+        timestamp created_at
+        timestamp updated_at
+      }
+
+      customer_notifications {
+        bigint id PK
+        bigint customer_id FK
+        varchar message
+        int billing_month
+        int billing_year
+        varchar month_year
+        timestamp sent_at
+      }
+
+      otps {
+        bigint id PK
+        varchar email
+        enum purpose "SIGNUP|LOGIN"
+        varchar code
+        timestamp expires_at
+        boolean verified
+        int attempts
+        timestamp created_at
+      }
+
+      customers ||--o{ meters : owns
+      customers ||--o{ bills : billed_to
+      customers ||--o{ customer_notifications : receives
+      customers ||--o{ users : "login account (optional)"
+      meters ||--o{ meter_readings : records
+      meters ||--o{ bills : billed_on
+      meter_readings ||--|| bills : "generates one bill"
+      bills ||--o{ payments : settled_by
+      tariffs ||--o{ tariff_tiers : "tier bands"
+    `;
+
+    const { svg } = await mermaid.render('erd-svg', diagram);
+    document.getElementById('erd').innerHTML = svg;
+  </script>
+</body>
+</html>

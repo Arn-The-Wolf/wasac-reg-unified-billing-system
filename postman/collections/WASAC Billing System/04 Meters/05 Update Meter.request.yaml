@@ -1,0 +1,30 @@
+$kind: http-request
+name: Update Meter
+method: PUT
+url: '{{baseUrl}}/api/v1/meters/{{meterId}}'
+order: 5000
+auth:
+  type: bearer
+  credentials:
+    - key: token
+      value: '{{authToken}}'
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "meterNumber": "WTR-2024-001",
+      "type": "WATER",
+      "installationDate": "2024-01-15",
+      "status": "ACTIVE",
+      "customerId": "{{customerId}}"
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status is 200", function () {
+        pm.response.to.have.status(200);
+      });

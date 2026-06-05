@@ -1,0 +1,31 @@
+$kind: http-request
+name: Update Customer
+method: PUT
+url: '{{baseUrl}}/api/v1/customers/{{customerId}}'
+order: 4000
+auth:
+  type: bearer
+  credentials:
+    - key: token
+      value: '{{authToken}}'
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "fullName": "John Doe Updated",
+      "nationalId": "1199880012345678",
+      "email": "john.doe.updated@example.com",
+      "phone": "0788123456",
+      "address": "KG 456 St, Kigali",
+      "status": "ACTIVE"
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status is 200", function () {
+        pm.response.to.have.status(200);
+      });

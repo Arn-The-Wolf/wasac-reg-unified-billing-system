@@ -1,0 +1,30 @@
+$kind: http-request
+name: Signup
+method: POST
+url: '{{baseUrl}}/api/v1/auth/signup'
+order: 1000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "fullName": "Test Admin",
+      "email": "admin@wasac.rw",
+      "countryCode": "+250",
+      "phoneNumber": "788000001",
+      "password": "Admin@1234",
+      "role": "ROLE_ADMIN"
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status is 200 or 201", function () {
+        pm.expect(pm.response.code).to.be.oneOf([200, 201]);
+      });
+      pm.test("Response has message", function () {
+        const json = pm.response.json();
+        pm.expect(json).to.have.property("message");
+      });

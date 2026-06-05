@@ -1,0 +1,26 @@
+$kind: http-request
+name: Verify Signup OTP
+method: POST
+url: '{{baseUrl}}/api/v1/auth/signup/verify-otp'
+order: 2000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "email": "admin@wasac.rw",
+      "code": "123456"
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status is 200", function () {
+        pm.response.to.have.status(200);
+      });
+      pm.test("Response has message", function () {
+        const json = pm.response.json();
+        pm.expect(json).to.have.property("message");
+      });

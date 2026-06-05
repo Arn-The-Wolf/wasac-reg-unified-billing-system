@@ -1,0 +1,39 @@
+$kind: http-request
+name: Create Customer
+method: POST
+url: '{{baseUrl}}/api/v1/customers/'
+order: 1000
+auth:
+  type: bearer
+  credentials:
+    - key: token
+      value: '{{authToken}}'
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "fullName": "John Doe",
+      "nationalId": "1199880012345678",
+      "email": "john.doe@example.com",
+      "phone": "0788123456",
+      "address": "KG 123 St, Kigali",
+      "status": "ACTIVE"
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status is 200 or 201", function () {
+        pm.expect(pm.response.code).to.be.oneOf([200, 201]);
+      });
+      pm.test("Customer created with id", function () {
+        const json = pm.response.json();
+        const data = json.data || json;
+        if (data && data.id) {
+          pm.environment.set("customerId", data.id);
+        }
+        pm.expect(data).to.have.property("id");
+      });

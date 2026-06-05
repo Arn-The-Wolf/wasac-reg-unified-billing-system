@@ -1,0 +1,34 @@
+$kind: http-request
+name: Generate Bill
+method: POST
+url: '{{baseUrl}}/api/v1/bills/generate'
+order: 1000
+auth:
+  type: bearer
+  credentials:
+    - key: token
+      value: '{{authToken}}'
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "meterReadingId": "{{meterReadingId}}"
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status is 200 or 201", function () {
+        pm.expect(pm.response.code).to.be.oneOf([200, 201]);
+      });
+      pm.test("Bill generated with id", function () {
+        const json = pm.response.json();
+        const data = json.data || json;
+        if (data && data.id) {
+          pm.environment.set("billId", data.id);
+        }
+        pm.expect(data).to.have.property("id");
+      });

@@ -1,0 +1,38 @@
+$kind: http-request
+name: Create Payment
+method: POST
+url: '{{baseUrl}}/api/v1/payments/'
+order: 1000
+auth:
+  type: bearer
+  credentials:
+    - key: token
+      value: '{{authToken}}'
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "billId": "{{billId}}",
+      "amount": 5000,
+      "paymentMethod": "MOBILE_MONEY",
+      "paymentDate": "2024-06-05",
+      "notes": "Payment via MTN Mobile Money"
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status is 200 or 201", function () {
+        pm.expect(pm.response.code).to.be.oneOf([200, 201]);
+      });
+      pm.test("Payment created with id", function () {
+        const json = pm.response.json();
+        const data = json.data || json;
+        if (data && data.id) {
+          pm.environment.set("paymentId", data.id);
+        }
+        pm.expect(data).to.have.property("id");
+      });
