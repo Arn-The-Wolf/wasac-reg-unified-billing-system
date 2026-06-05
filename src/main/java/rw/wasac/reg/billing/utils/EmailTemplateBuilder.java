@@ -51,6 +51,54 @@ public final class EmailTemplateBuilder {
         return wrap("Welcome to WASAC Billing", body);
     }
 
+    public static String buildActionRequiredEmail(String recipientName, String title, String message) {
+        String body = """
+                <div style="background:#fff3cd;border-left:4px solid #f0ad4e;border-radius:6px;padding:16px;margin-bottom:20px;">
+                  <p style="margin:0 0 6px;font-size:12px;color:#856404;text-transform:uppercase;letter-spacing:1px;font-weight:bold;">
+                    Action Required
+                  </p>
+                  <h2 style="margin:0;font-size:18px;color:%s;">%s</h2>
+                </div>
+                <p style="margin:0 0 16px;font-size:16px;color:#333;">Dear <strong>%s</strong>,</p>
+                <p style="margin:0 0 12px;font-size:15px;color:#555;line-height:1.6;">%s</p>
+                <div style="background:%s;border-radius:6px;padding:14px;margin-top:20px;text-align:center;">
+                  <p style="margin:0;font-size:14px;color:%s;font-weight:bold;">
+                    This item is waiting for your approval in the WASAC billing system.
+                  </p>
+                </div>
+                """.formatted(WASAC_DARK, title, recipientName, message, WASAC_LIGHT, WASAC_DARK);
+
+        return wrap("Action Required — " + title, body);
+    }
+
+    public static String buildStaffAlertEmail(String recipientName, String title, String message) {
+        String body = """
+                <div style="border-left:4px solid %s;padding-left:16px;margin-bottom:20px;">
+                  <h2 style="margin:0;font-size:18px;color:%s;">%s</h2>
+                </div>
+                <p style="margin:0 0 16px;font-size:16px;color:#333;">Dear <strong>%s</strong>,</p>
+                <p style="margin:0 0 12px;font-size:15px;color:#555;line-height:1.6;">%s</p>
+                <p style="margin:16px 0 0;font-size:13px;color:#888;">
+                  This is an automated staff notification from the WASAC Utility Billing System.
+                </p>
+                """.formatted(WASAC_ACCENT, WASAC_DARK, title, recipientName, message);
+
+        return wrap(title, body);
+    }
+
+    public static String buildAccountStatusEmail(String recipientName, String title, String message, boolean positive) {
+        String accent = positive ? WASAC_BLUE : "#c0392b";
+        String body = """
+                <div style="border-left:4px solid %s;padding-left:16px;margin-bottom:20px;">
+                  <h2 style="margin:0;font-size:18px;color:%s;">%s</h2>
+                </div>
+                <p style="margin:0 0 16px;font-size:16px;color:#333;">Dear <strong>%s</strong>,</p>
+                <p style="margin:0;font-size:15px;color:#555;line-height:1.6;">%s</p>
+                """.formatted(accent, WASAC_DARK, title, recipientName, message);
+
+        return wrap(title, body);
+    }
+
     public static String buildBillingNotificationEmail(String title, String message) {
         String formattedMessage = message
                 .replace("\n\n", "</p><p style=\"margin:0 0 12px;font-size:15px;color:#555;line-height:1.6;\">")

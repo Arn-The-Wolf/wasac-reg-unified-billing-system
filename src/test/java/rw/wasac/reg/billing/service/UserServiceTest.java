@@ -24,6 +24,8 @@ class UserServiceTest {
 
     @Mock
     private UserRepository userRepository;
+    @Mock
+    private StaffNotificationService staffNotificationService;
     @InjectMocks
     private UserServiceImpl userService;
 

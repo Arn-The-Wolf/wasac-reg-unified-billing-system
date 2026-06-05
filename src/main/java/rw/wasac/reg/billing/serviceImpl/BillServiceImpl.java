@@ -19,6 +19,7 @@ import rw.wasac.reg.billing.exception.ResourceNotFoundException;
 import rw.wasac.reg.billing.repository.*;
 import rw.wasac.reg.billing.service.BillService;
 import rw.wasac.reg.billing.service.BillingNotificationService;
+import rw.wasac.reg.billing.service.StaffNotificationService;
 import rw.wasac.reg.billing.utils.BillingCalculator;
 import rw.wasac.reg.billing.utils.SecurityUtils;
 
@@ -41,6 +42,7 @@ public class BillServiceImpl implements BillService {
     private final CustomerServiceImpl customerService;
     private final UserRepository userRepository;
     private final BillingNotificationService billingNotificationService;
+    private final StaffNotificationService staffNotificationService;
 
     @Override
     @Transactional
@@ -103,6 +105,7 @@ public class BillServiceImpl implements BillService {
 
         Bill saved = billRepository.save(bill);
         billingNotificationService.notifyBillGenerated(saved);
+        staffNotificationService.notifyBillGenerated(saved);
         return toResponse(saved);
     }
 

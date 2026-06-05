@@ -23,6 +23,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -35,6 +36,8 @@ class PaymentServiceTest {
     private BillRepository billRepository;
     @Mock
     private BillingNotificationService billingNotificationService;
+    @Mock
+    private StaffNotificationService staffNotificationService;
 
     @InjectMocks
     private PaymentServiceImpl paymentService;
@@ -56,10 +59,43 @@ class PaymentServiceTest {
         request.setPaymentMethod(PaymentMethod.MOBILE_MONEY);
         request.setPaymentDate(java.time.LocalDate.now());
 
-        when(billRepository.findById(1L)).thenReturn(Optional.of(bill));
+        when(billRepository.findByIdWithDetails(1L)).thenReturn(Optional.of(bill));
 
         assertThatThrownBy(() -> paymentService.recordPayment(request))
                 .isInstanceOf(BadRequestException.class);
+    }
+
+    @Test
+    void recordPayment_notifiesCustomerAndFinance() {
+        Bill bill = Bill.builder()
+                .id(1L)
+                .reference("BILL-001")
+                .totalAmount(new BigDecimal("1000"))
+                .balance(new BigDecimal("1000"))
+                .amountPaid(BigDecimal.ZERO)
+                .status(BillStatus.PENDING)
+                .billingMonth(6)
+                .billingYear(2025)
+                .customer(Customer.builder().id(1L).email("c@wasac.rw").fullName("Customer").build())
+                .build();
+
+        PaymentRequest request = new PaymentRequest();
+        request.setBillId(1L);
+        request.setAmount(new BigDecimal("500"));
+        request.setPaymentMethod(PaymentMethod.MOBILE_MONEY);
+        request.setPaymentDate(java.time.LocalDate.now());
+
+        when(billRepository.findByIdWithDetails(1L)).thenReturn(Optional.of(bill));
+        when(paymentRepository.save(any(Payment.class))).thenAnswer(inv -> {
+            Payment p = inv.getArgument(0);
+            p.setId(99L);
+            return p;
+        });
+
+        paymentService.recordPayment(request);
+
+        verify(billingNotificationService).notifyPaymentSubmitted(any(Bill.class), any(Payment.class));
+        verify(staffNotificationService).notifyPaymentAwaitingApproval(any(Bill.class), any(Payment.class));
     }
 
     @Test
@@ -91,5 +127,7 @@ class PaymentServiceTest {
         assertThat(bill.getBalance()).isEqualByComparingTo(BigDecimal.ZERO);
         assertThat(response.getStatus()).isEqualTo(PaymentStatus.APPROVED);
         verify(billingNotificationService).notifyBillFullyPaid(bill);
+        verify(staffNotificationService).notifyPaymentApproved(bill, payment);
+        verify(billingNotificationService, never()).notifyPaymentReceived(any(), any());
     }
 }

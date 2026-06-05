@@ -20,6 +20,7 @@ import rw.wasac.reg.billing.repository.BillRepository;
 import rw.wasac.reg.billing.repository.PaymentRepository;
 import rw.wasac.reg.billing.service.BillingNotificationService;
 import rw.wasac.reg.billing.service.PaymentService;
+import rw.wasac.reg.billing.service.StaffNotificationService;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -31,11 +32,12 @@ public class PaymentServiceImpl implements PaymentService {
     private final PaymentRepository paymentRepository;
     private final BillRepository billRepository;
     private final BillingNotificationService billingNotificationService;
+    private final StaffNotificationService staffNotificationService;
 
     @Override
     @Transactional
     public PaymentResponse recordPayment(PaymentRequest request) {
-        Bill bill = billRepository.findById(request.getBillId())
+        Bill bill = billRepository.findByIdWithDetails(request.getBillId())
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Bill not found with id: " + request.getBillId()));
 
@@ -57,7 +59,10 @@ public class PaymentServiceImpl implements PaymentService {
                 .notes(request.getNotes())
                 .build();
 
-        return toResponse(paymentRepository.save(payment));
+        Payment saved = paymentRepository.save(payment);
+        billingNotificationService.notifyPaymentSubmitted(bill, saved);
+        staffNotificationService.notifyPaymentAwaitingApproval(bill, saved);
+        return toResponse(saved);
     }
 
     @Override
@@ -93,6 +98,7 @@ public class PaymentServiceImpl implements PaymentService {
         } else {
             billingNotificationService.notifyPaymentReceived(bill, saved);
         }
+        staffNotificationService.notifyPaymentApproved(bill, saved);
 
         return toResponse(saved);
     }
@@ -109,6 +115,7 @@ public class PaymentServiceImpl implements PaymentService {
         payment.setStatus(PaymentStatus.REJECTED);
         Payment saved = paymentRepository.save(payment);
         billingNotificationService.notifyPaymentRejected(payment.getBill(), saved);
+        staffNotificationService.notifyPaymentRejected(payment.getBill(), saved);
 
         return toResponse(saved);
     }

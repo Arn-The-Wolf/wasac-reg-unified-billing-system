@@ -43,6 +43,8 @@ class MeterReadingServiceTest {
     private CustomerServiceImpl customerService;
     @Mock
     private BillRepository billRepository;
+    @Mock
+    private StaffNotificationService staffNotificationService;
 
     @InjectMocks
     private MeterReadingServiceImpl meterReadingService;

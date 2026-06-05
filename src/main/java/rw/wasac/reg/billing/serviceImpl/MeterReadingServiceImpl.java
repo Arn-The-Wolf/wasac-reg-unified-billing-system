@@ -17,6 +17,7 @@ import rw.wasac.reg.billing.repository.BillRepository;
 import rw.wasac.reg.billing.repository.MeterReadingRepository;
 import rw.wasac.reg.billing.repository.MeterRepository;
 import rw.wasac.reg.billing.service.MeterReadingService;
+import rw.wasac.reg.billing.service.StaffNotificationService;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -30,6 +31,7 @@ public class MeterReadingServiceImpl implements MeterReadingService {
     private final BillRepository billRepository;
     private final MeterServiceImpl meterService;
     private final CustomerServiceImpl customerService;
+    private final StaffNotificationService staffNotificationService;
 
     @Override
     @Transactional
@@ -71,7 +73,10 @@ public class MeterReadingServiceImpl implements MeterReadingService {
                 .billingYear(billingYear)
                 .build();
 
-        return toResponse(meterReadingRepository.save(reading));
+        MeterReading saved = meterReadingRepository.save(reading);
+        staffNotificationService.notifyMeterReadingCaptured(saved);
+        staffNotificationService.notifyOperatorReadingConfirmation(saved);
+        return toResponse(saved);
     }
 
     @Override

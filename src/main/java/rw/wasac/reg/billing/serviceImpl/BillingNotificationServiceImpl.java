@@ -33,6 +33,21 @@ public class BillingNotificationServiceImpl implements BillingNotificationServic
     }
 
     @Override
+    public void notifyPaymentSubmitted(Bill bill, Payment payment) {
+        Customer customer = bill.getCustomer();
+        String monthYear = formatMonthYear(bill.getBillingMonth(), bill.getBillingYear());
+        String message = String.format(
+                "Dear %s, your payment of %s FRW via %s for bill %s (%s) has been submitted successfully. "
+                        + "It is now awaiting finance approval. You will receive another email once it is processed.",
+                customer.getFullName(),
+                payment.getAmount().toPlainString(),
+                formatPaymentMethod(payment.getPaymentMethod()),
+                bill.getReference(),
+                monthYear);
+        sendBrandedEmail(customer, "Payment Submitted — Awaiting Approval", message);
+    }
+
+    @Override
     public void notifyPaymentReceived(Bill bill, Payment payment) {
         Customer customer = bill.getCustomer();
         String monthYear = formatMonthYear(bill.getBillingMonth(), bill.getBillingYear());
@@ -52,7 +67,8 @@ public class BillingNotificationServiceImpl implements BillingNotificationServic
         Customer customer = bill.getCustomer();
         String monthYear = formatMonthYear(bill.getBillingMonth(), bill.getBillingYear());
         String message = String.format(
-                "Dear %s, Your %s utility bill of %s FRW has been successfully processed.",
+                "Dear %s, your %s utility bill of %s FRW has been fully paid. "
+                        + "Thank you for your payment. You can download your receipt from the billing portal.",
                 customer.getFullName(), monthYear, bill.getTotalAmount().toPlainString());
         sendBrandedEmail(customer, "Bill Fully Paid — " + monthYear, message);
     }

@@ -80,7 +80,7 @@ BEGIN
     v_message_text := 'Dear ' || v_customer_name ||
         ', Your ' || v_month_year ||
         ' utility bill of ' || TO_CHAR(v_total_amount, 'FM999999999.00') ||
-        ' FRW has been successfully processed.';
+        ' FRW has been fully paid. Thank you for your payment.';
 
     INSERT INTO customer_notifications (customer_id, message, billing_month, billing_year, month_year, sent_at)
     VALUES (v_customer_id, v_message_text, v_month, v_year, v_month_year, CURRENT_TIMESTAMP);

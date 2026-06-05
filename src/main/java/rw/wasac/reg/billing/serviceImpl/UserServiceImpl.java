@@ -14,6 +14,7 @@ import rw.wasac.reg.billing.enums.UserStatus;
 import rw.wasac.reg.billing.exception.BadRequestException;
 import rw.wasac.reg.billing.exception.ResourceNotFoundException;
 import rw.wasac.reg.billing.repository.UserRepository;
+import rw.wasac.reg.billing.service.StaffNotificationService;
 import rw.wasac.reg.billing.service.UserService;
 
 import java.util.List;
@@ -23,6 +24,7 @@ import java.util.List;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final StaffNotificationService staffNotificationService;
 
     @Override
     @Transactional(readOnly = true)
@@ -69,7 +71,9 @@ public class UserServiceImpl implements UserService {
     public UserResponse deactivate(Long id) {
         User user = findEntity(id);
         user.setStatus(UserStatus.INACTIVE);
-        return toResponse(userRepository.save(user));
+        User saved = userRepository.save(user);
+        staffNotificationService.notifyUserDeactivated(saved);
+        return toResponse(saved);
     }
 
     private User findEntity(Long id) {

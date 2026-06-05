@@ -24,6 +24,24 @@ class EmailTemplateBuilderTest {
     }
 
     @Test
+    void buildActionRequiredEmail_containsApprovalBanner() {
+        String html = EmailTemplateBuilder.buildActionRequiredEmail(
+                "Finance Officer", "Payment Approval", "Payment #5 is waiting for your approval.");
+        assertThat(html).contains("Action Required");
+        assertThat(html).contains("waiting for your approval");
+        assertThat(html).contains("#0066B3");
+    }
+
+    @Test
+    void buildStaffAlertEmail_containsRecipientAndTitle() {
+        String html = EmailTemplateBuilder.buildStaffAlertEmail(
+                "Admin User", "New Bill Generated", "Bill BILL-001 created for Jean.");
+        assertThat(html).contains("Admin User");
+        assertThat(html).contains("New Bill Generated");
+        assertThat(html).contains("WASAC");
+    }
+
+    @Test
     void buildBillingNotificationEmail_containsTitleAndMessage() {
         String html = EmailTemplateBuilder.buildBillingNotificationEmail(
                 "New Utility Bill", "Dear Jean, Your June/2025 utility bill of 1500 FRW has been processed.");

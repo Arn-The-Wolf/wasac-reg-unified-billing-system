@@ -18,6 +18,7 @@ import rw.wasac.reg.billing.exception.DuplicateResourceException;
 import rw.wasac.reg.billing.exception.ResourceNotFoundException;
 import rw.wasac.reg.billing.repository.CustomerRepository;
 import rw.wasac.reg.billing.service.CustomerService;
+import rw.wasac.reg.billing.service.StaffNotificationService;
 
 import java.util.List;
 
@@ -34,6 +35,7 @@ public class CustomerServiceImpl implements CustomerService {
 
     private final CustomerRepository customerRepository;
     private final ModelMapper modelMapper;
+    private final StaffNotificationService staffNotificationService;
 
     @Override
     @Transactional
@@ -87,7 +89,9 @@ public class CustomerServiceImpl implements CustomerService {
     public CustomerResponse activate(Long id) {
         Customer customer = findEntity(id);
         customer.setStatus(CustomerStatus.ACTIVE);
-        return toResponse(customerRepository.save(customer));
+        Customer saved = customerRepository.save(customer);
+        staffNotificationService.notifyCustomerActivated(saved);
+        return toResponse(saved);
     }
 
     @Override
@@ -95,7 +99,9 @@ public class CustomerServiceImpl implements CustomerService {
     public CustomerResponse deactivate(Long id) {
         Customer customer = findEntity(id);
         customer.setStatus(CustomerStatus.INACTIVE);
-        return toResponse(customerRepository.save(customer));
+        Customer saved = customerRepository.save(customer);
+        staffNotificationService.notifyCustomerDeactivated(saved);
+        return toResponse(saved);
     }
 
     public void assertCustomerActive(Customer customer) {
