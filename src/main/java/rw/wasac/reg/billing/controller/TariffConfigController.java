@@ -8,11 +8,14 @@ package rw.wasac.reg.billing.controller;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import rw.wasac.reg.billing.constant.AppConstants;
 import rw.wasac.reg.billing.dto.request.*;
 import rw.wasac.reg.billing.dto.response.*;
 import rw.wasac.reg.billing.service.TariffConfigService;
@@ -22,6 +25,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/config")
 @RequiredArgsConstructor
+@Validated
 @SecurityRequirement(name = "Bearer Authentication")
 @Tag(name = "Tariff Configuration", description = "Admin-only tariff, tax, and penalty configuration")
 public class TariffConfigController {
@@ -43,7 +47,8 @@ public class TariffConfigController {
 
     @GetMapping("/tariffs/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'FINANCE')")
-    public ResponseEntity<ApiResponse<TariffResponse>> getTariff(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<TariffResponse>> getTariff(
+            @PathVariable @Positive(message = AppConstants.ID_POSITIVE_MESSAGE) Long id) {
         return ResponseEntity.ok(ApiResponse.success("Tariff retrieved", tariffConfigService.getTariffById(id)));
     }
 

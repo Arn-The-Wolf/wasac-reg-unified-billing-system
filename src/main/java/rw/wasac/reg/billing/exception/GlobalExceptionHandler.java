@@ -20,12 +20,36 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import rw.wasac.reg.billing.dto.response.ApiResponse;
 
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ApiResponse<Map<String, String>>> handleConstraintViolation(ConstraintViolationException ex) {
+        Map<String, String> errors = ex.getConstraintViolations().stream()
+                .collect(Collectors.toMap(
+                        violation -> violation.getPropertyPath().toString(),
+                        ConstraintViolation::getMessage,
+                        (first, second) -> first));
+
+        String summary = errors.size() == 1
+                ? "Validation failed: 1 parameter has an error"
+                : "Validation failed: " + errors.size() + " parameters have errors";
+
+        log.error("Parameter validation failed: {}", errors);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ApiResponse.<Map<String, String>>builder()
+                        .success(false)
+                        .message(summary)
+                        .data(errors)
+                        .build());
+    }
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ApiResponse<Void>> handleResourceNotFoundException(ResourceNotFoundException ex) {

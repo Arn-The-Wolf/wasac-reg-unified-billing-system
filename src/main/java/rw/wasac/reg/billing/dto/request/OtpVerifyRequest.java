@@ -17,6 +17,7 @@ public class OtpVerifyRequest {
 
     @NotBlank(message = AppConstants.EMAIL_REQUIRED_MESSAGE)
     @Email(message = AppConstants.EMAIL_MESSAGE)
+    @Size(max = 150, message = AppConstants.EMAIL_SIZE_MESSAGE)
     private String email;
 
     @NotBlank(message = AppConstants.OTP_CODE_REQUIRED_MESSAGE)

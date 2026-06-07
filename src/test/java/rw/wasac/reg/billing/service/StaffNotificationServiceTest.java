@@ -1,23 +1,37 @@
 package rw.wasac.reg.billing.service;
 
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import rw.wasac.reg.billing.entity.*;
-import rw.wasac.reg.billing.enums.*;
-import rw.wasac.reg.billing.repository.UserRepository;
-import rw.wasac.reg.billing.serviceImpl.StaffNotificationServiceImpl;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.contains;
+import static org.mockito.ArgumentMatchers.eq;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import rw.wasac.reg.billing.entity.Bill;
+import rw.wasac.reg.billing.entity.Customer;
+import rw.wasac.reg.billing.entity.Meter;
+import rw.wasac.reg.billing.entity.MeterReading;
+import rw.wasac.reg.billing.entity.Payment;
+import rw.wasac.reg.billing.entity.User;
+import rw.wasac.reg.billing.enums.MeterType;
+import rw.wasac.reg.billing.enums.PaymentMethod;
+import rw.wasac.reg.billing.enums.PaymentStatus;
+import rw.wasac.reg.billing.enums.Role;
+import rw.wasac.reg.billing.enums.UserStatus;
+import rw.wasac.reg.billing.repository.UserRepository;
+import rw.wasac.reg.billing.serviceImpl.StaffNotificationServiceImpl;
 
 @ExtendWith(MockitoExtension.class)
 class StaffNotificationServiceTest {

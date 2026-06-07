@@ -19,6 +19,7 @@ public class UserUpdateRequest {
     @Size(min = 2, max = 150, message = AppConstants.FULL_NAME_SIZE_MESSAGE)
     private String fullName;
 
+    @NotBlank(message = AppConstants.COUNTRY_CODE_REQUIRED_MESSAGE)
     @Pattern(regexp = AppConstants.COUNTRY_CODE_PATTERN, message = AppConstants.COUNTRY_CODE_MESSAGE)
     private String countryCode;
 
@@ -26,9 +27,9 @@ public class UserUpdateRequest {
     @Pattern(regexp = AppConstants.PHONE_NUMBER_PATTERN, message = AppConstants.PHONE_NUMBER_MESSAGE)
     private String phoneNumber;
 
-    @NotNull(message = "User status is required (ACTIVE or INACTIVE)")
+    @NotNull(message = AppConstants.USER_STATUS_REQUIRED_MESSAGE)
     private UserStatus status;
 
-    @NotNull(message = "User role is required")
+    @NotNull(message = AppConstants.ROLE_REQUIRED_MESSAGE)
     private Role role;
 }

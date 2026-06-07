@@ -16,6 +16,10 @@
     .note { background: var(--wasac-light); border-left: 4px solid var(--wasac-blue); padding: 0.75rem 1rem; border-radius: 4px; font-size: 0.9rem; margin-top: 1rem; }
     #erd { padding: 1rem 0; overflow-x: auto; }
     #erd svg { max-width: 100%; min-width: 900px; }
+    #erd svg text,
+    #erd svg tspan {
+      fill: #000000 !important;
+    }
   </style>
 </head>
 <body>
@@ -47,18 +51,22 @@
 
   <script type="module">
     import mermaid from 'https://esm.sh/mermaid@11/dist/mermaid.esm.min.mjs';
-    const dark = matchMedia('(prefers-color-scheme: dark)').matches;
     await document.fonts.ready;
     mermaid.initialize({
       startOnLoad: false,
       theme: 'base',
       fontFamily: '"Segoe UI", system-ui, sans-serif',
       themeVariables: {
-        darkMode: dark,
+        darkMode: false,
         fontSize: '12px',
-        primaryColor: dark ? '#1a3a5c' : '#E8F4FC',
+        primaryColor: '#E8F4FC',
         primaryBorderColor: '#0066B3',
-        primaryTextColor: dark ? '#e8f4fc' : '#004080',
+        primaryTextColor: '#000000',
+        secondaryTextColor: '#000000',
+        tertiaryTextColor: '#000000',
+        textColor: '#000000',
+        attributeTextColor: '#000000',
+        entityTextColor: '#000000',
         lineColor: '#0066B3',
       },
     });
@@ -223,7 +231,11 @@
     `;
 
     const { svg } = await mermaid.render('erd-svg', diagram);
-    document.getElementById('erd').innerHTML = svg;
+    const erdContainer = document.getElementById('erd');
+    erdContainer.innerHTML = svg;
+    erdContainer.querySelectorAll('text, tspan').forEach((node) => {
+      node.setAttribute('fill', '#000000');
+    });
   </script>
 </body>
 </html>

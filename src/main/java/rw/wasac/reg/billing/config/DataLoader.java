@@ -86,7 +86,7 @@ public class DataLoader implements CommandLineRunner {
                 .fullName("System Admin")
                 .email("ruyangearnold@gmail.com")
                 .countryCode("+250")
-                .phoneNumber("0781000001")
+                .phoneNumber("781000001")
                 .password(passwordEncoder.encode("Admin@123"))
                 .status(UserStatus.ACTIVE)
                 .role(Role.ROLE_ADMIN)
@@ -94,9 +94,9 @@ public class DataLoader implements CommandLineRunner {
 
         userRepository.save(User.builder()
                 .fullName("Field Operator")
-                .email("operator@wasac.rw")
+                .email("mwizaelvis@gmail.com")
                 .countryCode("+250")
-                .phoneNumber("0781000002")
+                .phoneNumber("781000002")
                 .password(passwordEncoder.encode("Operator@123"))
                 .status(UserStatus.ACTIVE)
                 .role(Role.ROLE_OPERATOR)
@@ -106,7 +106,7 @@ public class DataLoader implements CommandLineRunner {
                 .fullName("Field Inspector")
                 .email("inspector@wasac.rw")
                 .countryCode("+250")
-                .phoneNumber("0781000005")
+                .phoneNumber("781000005")
                 .password(passwordEncoder.encode("Inspector@123"))
                 .status(UserStatus.ACTIVE)
                 .role(Role.ROLE_INSPECTOR)
@@ -114,9 +114,9 @@ public class DataLoader implements CommandLineRunner {
 
         userRepository.save(User.builder()
                 .fullName("Finance Officer")
-                .email("finance@wasac.rw")
+                .email("jurudoriane@gmail.com")
                 .countryCode("+250")
-                .phoneNumber("0781000003")
+                .phoneNumber("781000003")
                 .password(passwordEncoder.encode("Finance@123"))
                 .status(UserStatus.ACTIVE)
                 .role(Role.ROLE_FINANCE)
@@ -126,15 +126,15 @@ public class DataLoader implements CommandLineRunner {
                 .fullName("Jean Uwimana")
                 .email("customer@wasac.rw")
                 .countryCode("+250")
-                .phoneNumber("0781000004")
+                .phoneNumber("781000004")
                 .password(passwordEncoder.encode("Customer@123"))
                 .status(UserStatus.ACTIVE)
                 .role(Role.ROLE_CUSTOMER)
                 .customer(customer)
                 .build());
 
-        log.info("Default credentials: ruyangearnold@gmail.com/Admin@123, operator@wasac.rw/Operator@123, "
-                + "inspector@wasac.rw/Inspector@123, finance@wasac.rw/Finance@123, customer@wasac.rw/Customer@123");
+        log.info("Default credentials: ruyangearnold@gmail.com/Admin@123, mwizaelvis@gmail.com/Operator@123, "
+                + "inspector@wasac.rw/Inspector@123, jurudoriane@gmail.com/Finance@123, customer@wasac.rw/Customer@123");
     }
 
     private void loadTariffConfig() {

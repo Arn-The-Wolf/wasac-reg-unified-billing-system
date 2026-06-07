@@ -19,8 +19,8 @@
 | Role | Email | Password | Use For |
 |------|-------|----------|---------|
 | **ADMIN** | `ruyangearnold@gmail.com` | `Admin@123` | Tariffs, users, all config |
-| **OPERATOR** | `operator@wasac.rw` | `Operator@123` | Customers, meters, readings, bills |
-| **FINANCE** | `finance@wasac.rw` | `Finance@123` | Approve payments, view bills |
+| **OPERATOR** | `mwizaelvis@gmail.com` | `Operator@123` | Customers, meters, readings, bills |
+| **FINANCE** | `jurudoriane@gmail.com` | `Finance@123` | Approve payments, view bills |
 | **CUSTOMER** | `customer@wasac.rw` | `Customer@123` | View own bills & pay |
 
 ### 3. Recommended Test Order (Full Demo)
@@ -112,7 +112,7 @@ Task 1  → Login as CUSTOMER → view own bills
 **OPERATOR login:**
 ```json
 {
-  "email": "operator@wasac.rw",
+  "email": "mwizaelvis@gmail.com",
   "password": "Operator@123"
 }
 ```
@@ -120,7 +120,7 @@ Task 1  → Login as CUSTOMER → view own bills
 **FINANCE login:**
 ```json
 {
-  "email": "finance@wasac.rw",
+  "email": "jurudoriane@gmail.com",
   "password": "Finance@123"
 }
 ```
@@ -339,7 +339,7 @@ Inactive meter → cannot record readings.
 
 **PDF requirements:** Operator captures readings. Rules: current > previous, one per meter per month/year, meter must be active.
 
-> **Use OPERATOR token.** Authorize with `operator@wasac.rw` credentials.
+> **Use OPERATOR token.** Authorize with `mwizaelvis@gmail.com` credentials.
 
 ### 3A. Record Water Meter Reading
 

@@ -3,26 +3,35 @@
  */
 package rw.wasac.reg.billing.serviceImpl;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import rw.wasac.reg.billing.entity.*;
-import rw.wasac.reg.billing.enums.BillStatus;
-import rw.wasac.reg.billing.enums.PaymentStatus;
-import rw.wasac.reg.billing.exception.BadRequestException;
-import rw.wasac.reg.billing.exception.ResourceNotFoundException;
-import rw.wasac.reg.billing.repository.*;
-import rw.wasac.reg.billing.service.PdfReportService;
-import rw.wasac.reg.billing.utils.SecurityUtils;
-import rw.wasac.reg.billing.utils.WasacPdfBuilder;
-
 import java.math.BigDecimal;
 import java.time.Month;
 import java.time.format.TextStyle;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import lombok.RequiredArgsConstructor;
+import rw.wasac.reg.billing.entity.Bill;
+import rw.wasac.reg.billing.entity.Customer;
+import rw.wasac.reg.billing.entity.MeterReading;
+import rw.wasac.reg.billing.entity.Payment;
+import rw.wasac.reg.billing.entity.User;
+import rw.wasac.reg.billing.enums.BillStatus;
+import rw.wasac.reg.billing.enums.PaymentStatus;
+import rw.wasac.reg.billing.exception.BadRequestException;
+import rw.wasac.reg.billing.exception.ResourceNotFoundException;
+import rw.wasac.reg.billing.repository.BillRepository;
+import rw.wasac.reg.billing.repository.CustomerRepository;
+import rw.wasac.reg.billing.repository.MeterReadingRepository;
+import rw.wasac.reg.billing.repository.PaymentRepository;
+import rw.wasac.reg.billing.repository.UserRepository;
+import rw.wasac.reg.billing.service.PdfReportService;
+import rw.wasac.reg.billing.utils.SecurityUtils;
+import rw.wasac.reg.billing.utils.WasacPdfBuilder;
 
 @Service
 @RequiredArgsConstructor

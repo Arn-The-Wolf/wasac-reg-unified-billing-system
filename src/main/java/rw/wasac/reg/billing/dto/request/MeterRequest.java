@@ -9,6 +9,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import rw.wasac.reg.billing.constant.AppConstants;
@@ -32,8 +33,10 @@ public class MeterRequest {
     @PastOrPresent(message = AppConstants.INSTALLATION_DATE_MESSAGE)
     private LocalDate installationDate;
 
+    @NotNull(message = AppConstants.METER_STATUS_REQUIRED_MESSAGE)
     private MeterStatus status = MeterStatus.ACTIVE;
 
     @NotNull(message = AppConstants.CUSTOMER_ID_REQUIRED_MESSAGE)
+    @Positive(message = AppConstants.ID_POSITIVE_MESSAGE)
     private Long customerId;
 }

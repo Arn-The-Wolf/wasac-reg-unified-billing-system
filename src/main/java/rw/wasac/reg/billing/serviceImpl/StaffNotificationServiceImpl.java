@@ -3,9 +3,21 @@
  */
 package rw.wasac.reg.billing.serviceImpl;
 
-import lombok.RequiredArgsConstructor;
+import java.time.Month;
+import java.time.format.TextStyle;
+import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
+
 import org.springframework.stereotype.Service;
-import rw.wasac.reg.billing.entity.*;
+
+import lombok.RequiredArgsConstructor;
+import rw.wasac.reg.billing.entity.Bill;
+import rw.wasac.reg.billing.entity.Customer;
+import rw.wasac.reg.billing.entity.Meter;
+import rw.wasac.reg.billing.entity.MeterReading;
+import rw.wasac.reg.billing.entity.Payment;
+import rw.wasac.reg.billing.entity.User;
 import rw.wasac.reg.billing.enums.Role;
 import rw.wasac.reg.billing.enums.UserStatus;
 import rw.wasac.reg.billing.repository.UserRepository;
@@ -13,12 +25,6 @@ import rw.wasac.reg.billing.service.EmailService;
 import rw.wasac.reg.billing.service.StaffNotificationService;
 import rw.wasac.reg.billing.utils.EmailTemplateBuilder;
 import rw.wasac.reg.billing.utils.SecurityUtils;
-
-import java.time.Month;
-import java.time.format.TextStyle;
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor

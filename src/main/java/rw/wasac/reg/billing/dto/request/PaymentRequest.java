@@ -6,8 +6,10 @@
 package rw.wasac.reg.billing.dto.request;
 
 import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
+import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import rw.wasac.reg.billing.constant.AppConstants;
@@ -20,10 +22,12 @@ import java.time.LocalDate;
 public class PaymentRequest {
 
     @NotNull(message = AppConstants.BILL_ID_REQUIRED_MESSAGE)
+    @Positive(message = AppConstants.ID_POSITIVE_MESSAGE)
     private Long billId;
 
     @NotNull(message = AppConstants.AMOUNT_REQUIRED_MESSAGE)
     @DecimalMin(value = "0.01", message = AppConstants.AMOUNT_MIN_MESSAGE)
+    @Digits(integer = 10, fraction = 2, message = "Payment amount must have at most 10 integer digits and 2 decimal places")
     private BigDecimal amount;
 
     @NotNull(message = AppConstants.PAYMENT_METHOD_REQUIRED_MESSAGE)
